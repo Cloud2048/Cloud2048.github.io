@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>学生分数管理系统</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background-color: #ffe6f2;
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 20px;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ff99cc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #ffb3d9;
+        }
+        .download-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff4d94;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .reset-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #ff4d94;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .modal .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #ff4d94;
+        }
+    </style>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="download-btn" id="downloadBtn" style="display:none;">数据下载</div>
+    <div class="reset-btn" id="resetBtn" style="display:none;">数据归零</div>
+    <div id="tableContainer"></div>
+
+    <!-- 登录弹窗 -->
+    <div id="loginModal" class="modal">
+        <span class="close-btn" onclick="closeModal('loginModal')">×</span>
+        <h3>登录系统</h3>
+        <input type="text" id="username" placeholder="用户名">
+        <input type="password" id="password" placeholder="密码">
+        <button onclick="login()">登录</button>
+    </div>
+
+    <!-- 下载弹窗 -->
+    <div id="downloadModal" class="modal">
+        <span class="close-btn" onclick="closeModal('downloadModal')">×</span>
+        <h3>下载选项</h3>
+        <div id="historyBtns"></div>
+        <button onclick="exportCurrentData()">下载当前数据</button>
+        <button onclick="exportFinalData()">下载本周最终数据</button>
+    </div>
+
+<script>
+// 初始化数据
+const subjects = ['语文', '数学', '英语', '政治', '历史', '地理', '生物', '物理', '常规', '宿舍', '卫生', '其它'];
+const users = {
+    'Cloud': { pwd: 'cl1083', role: 'super' },
+    'admin01': { pwd: '4628786', subject: '语文' },
+    'admin02': { pwd: '5962000', subject: '数学' },
+    'admin03': { pwd: '3046565', subject: '英语' },
+    'admin04': { pwd: '1460014', subject: '政治' },
+    'admin05': { pwd: '5962000', subject: '历史' },
+    'admin06': { pwd: '4036812', subject: '地理' },
+    'admin07': { pwd: '1258903', subject: '生物' },
+    'admin08': { pwd: '3549511', subject: '物理' },
+    'admin09': { pwd: '1504864', subject: '常规' },
+    'admin10': { pwd: '1537741', subject: '宿舍' },
+    'admin11': { pwd: '9107753', subject: '卫生' },
+    'admin12': { pwd: '1841208', subject: '其它' },
+    'admin': { pwd: '114514', role: 'public' }
+};
+
+let currentUser = null;
+let historyDates = [];
+
+// 关闭弹窗
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+// 登录验证
+function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (users[username] && users[username].pwd === password) {
+        currentUser = username;
+        document.getElementById('loginModal').style.display = 'none';
+        initSystem();
+    } else {
+        alert('登录失败');
+    }
+}
+
+// 初始化系统
+function initSystem() {
+    // 显示控制按钮
+    if (currentUser === 'Cloud') {
+        document.getElementById('downloadBtn').style.display = 'block';
+        document.getElementById('resetBtn').style.display = 'block';
+    }
+
+    // 创建表格
+    createTable();
+}
+
+// 检查编辑权限
+function checkEditPermission(subject) {
+    if (currentUser === 'Cloud') return true; // 超级管理员可以编辑所有
+    if (users[currentUser]?.subject === subject) return true; // 科目管理员只能编辑自己的科目
+    return false;
+}
+
+// 创建表格
+function createTable() {
+    let html = '<table><tr><th>姓名</th>';
+    subjects.forEach(sub => html += `<th>${sub}</th>`);
+    html += '</tr>';
+
+    for (let i = 1; i <= 38; i++) {
+        html += `<tr><td ${currentUser === 'Cloud' ? 'contenteditable="true"' : ''}>学生${i}</td>`;
+        subjects.forEach(sub => {
+            const editable = checkEditPermission(sub) ? 'contenteditable="true"' : '';
+            html += `<td ${editable}>0</td>`;
+        });
+        html += '</tr>';
+    }
+
+    document.getElementById('tableContainer').innerHTML = html;
+}
+
+// 导出当前数据
+function exportCurrentData() {
+    const wb = XLSX.utils.table_to_book(document.querySelector('table'));
+    XLSX.writeFile(wb, `学生数据_${new Date().toLocaleDateString()}.xlsx`);
+    saveHistoryDate();
+}
+
+// 数据归零
+function resetData() {
+    if (currentUser !== 'Cloud') {
+        alert('只有超级管理员可以执行此操作！');
+        return;
+    }
+    const table = document.querySelector('table');
+    const rows = Array.from(table.rows).slice(1); // 跳过表头
+    rows.forEach(row => {
+        Array.from(row.cells).slice(1).forEach(cell => {
+            if (cell.contentEditable === 'true') {
+                cell.textContent = '0';
+            }
+        });
+    });
+    alert('数据已归零！');
+}
+
+// 保存历史日期
+function saveHistoryDate() {
+    const date = new Date().toLocaleDateString();
+    historyDates.push(date);
+    if (historyDates.length > 3) historyDates.shift(); // 最多保存 3 个
+    updateHistoryButtons();
+}
+
+// 更新历史按钮
+function updateHistoryButtons() {
+    const historyBtns = document.getElementById('historyBtns');
+    historyBtns.innerHTML = historyDates.map(date =>
+        `<button onclick="exportHistoryData('${date}')">${date}</button>`
+    ).join('');
+}
+
+// 导出历史数据
+function exportHistoryData(date) {
+    // 这里需要从服务器获取历史数据（需要后端支持）
+    alert(`下载 ${date} 的数据`);
+}
+
+// 计算最终数据
+function calculateFinalData() {
+    const table = document.querySelector('table');
+    const rows = Array.from(table.rows).slice(1); // 跳过表头
+    const studentData = [];
+
+    // 解析表格数据
+    rows.forEach(row => {
+        const student = {
+            name: row.cells[0].textContent,
+            scores: Array.from(row.cells).slice(1).map(cell => parseInt(cell.textContent))
+        };
+        studentData.push(student);
+    });
+
+    // 计算每个科目的等级
+    studentData.forEach(student => {
+        student.levels = [];
+        student.totalScore = 0;
+
+        subjects.forEach((subject, index) => {
+            const score = student.scores[index];
+            const allScores = studentData.map(s => s.scores[index]).sort((a, b) => b - a);
+            const rank = allScores.indexOf(score) + 1;
+
+            let level;
+            if (rank <= 8) level = 'A';
+            else if (rank <= 22) level = 'B';
+            else level = 'C';
+
+            student.levels.push(level);
+            if (level === 'A') student.totalScore += 5;
+            else if (level === 'B') student.totalScore += 3;
+            else student.totalScore += 1;
+        });
+    });
+
+    // 计算最终等级
+    studentData.sort((a, b) => b.totalScore - a.totalScore);
+    studentData.forEach((student, index) => {
+        if (index < 8) student.finalLevel = 'A';
+        else if (index < 22) student.finalLevel = 'B';
+        else student.finalLevel = 'C';
+    });
+
+    return studentData;
+}
+
+// 导出最终数据
+function exportFinalData() {
+    const finalData = calculateFinalData();
+    const wb = XLSX.utils.book_new();
+    const wsData = finalData.map(student => [
+        student.name,
+        ...student.levels,
+        student.totalScore,
+        student.finalLevel
+    ]);
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, 'Final Data');
+    XLSX.writeFile(wb, `最终数据_${new Date().toLocaleDateString()}.xlsx`);
+}
+
+// 定时任务
+setInterval(() => {
+    const now = new Date();
+    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000); // 转换为北京时间
+
+    // 周日 18:00 自动导出
+    if (beijingTime.getDay() === 0 && beijingTime.getHours() === 18 && beijingTime.getMinutes() === 0) {
+        exportCurrentData();
+    }
+
+    // 周日 23:00 自动归零
+    if (beijingTime.getDay() === 0 && beijingTime.getHours() === 23 && beijingTime.getMinutes() === 0) {
+        resetData();
+    }
+}, 60000);
+
+// 初始化登录
+document.getElementById('loginModal').style.display = 'block';
+
+// 绑定按钮事件
+document.getElementById('downloadBtn').addEventListener('click', () => {
+    document.getElementById('downloadModal').style.display = 'block';
+});
+document.getElementById('resetBtn').addEventListener('click', resetData);
+</script>
+</body>
+</html>
