@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人类资格许可证 · 考核申请系统</title>
+<style>
+  :root{
+    --desk:#d8cfbd;
+    --sheet:#faf6ec;
+    --sheet-2:#f3ecdd;
+    --ink:#211e19;
+    --ink-2:#5b544a;
+    --ink-3:#8d8375;
+    --rule:#c9bda6;
+    --rule-2:#ded4bf;
+    --seal:#a8261f;
+    --seal-ink:#8f1f1a;
+    --seal-dim:rgba(168,38,31,.09);
+    --hl:#efe3c6;
+    --serif:"Songti SC","STSong","SimSun","Source Han Serif SC","Noto Serif CJK SC","Times New Roman",serif;
+    --sans:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
+    --kai:"Kaiti SC","STKaiti","KaiTi","楷体",serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--desk);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    padding:38px 20px 72px;
+    min-height:100vh;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    opacity:.16;mix-blend-mode:multiply;
+  }
+  .sheet{
+    position:relative;z-index:1;
+    width:100%;max-width:920px;margin:0 auto;
+    background:var(--sheet);
+    border:1px solid rgba(0,0,0,.12);
+    box-shadow:0 1px 0 rgba(255,255,255,.6) inset, 0 18px 50px -18px rgba(48,36,18,.42), 0 2px 6px rgba(48,36,18,.12);
+    padding:46px 62px 34px;
+  }
+  .sheet::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23m)' opacity='.4'/%3E%3C/svg%3E");
+    opacity:.1;mix-blend-mode:multiply;
+  }
+  /* ---------- masthead ---------- */
+  .masthead{text-align:center;position:relative;z-index:2}
+  .org{
+    display:block;font-weight:700;letter-spacing:.34em;
+    font-size:29px;line-height:1.3;
+    text-indent:.34em;
+  }
+  .org-en{
+    display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.34em;
+    color:var(--ink-3);text-transform:uppercase;margin-top:7px;
+  }
+  .rule-double{margin:16px 0 0;height:0;border-top:3px solid var(--seal);position:relative}
+  .rule-double::after{content:"";position:absolute;left:0;right:0;top:4px;border-top:1px solid var(--seal)}
+  .docline{
+    display:flex;justify-content:space-between;gap:14px;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+    color:var(--ink-3);padding:8px 2px 0;flex-wrap:wrap;
+  }
+  .docline b{color:var(--seal-ink);font-weight:600}
+  /* ---------- screens ---------- */
+  #stage{position:relative;z-index:2;padding:34px 0 0}
+  .screen{display:none}
+  .screen.on{display:block;animation:rise .5s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+  /* ---------- intro ---------- */
+  .doc-title{text-align:center;margin:4px 0 6px}
+  .doc-title h1{
+    font-size:34px;font-weight:700;letter-spacing:.24em;text-indent:.24em;
+    margin:0;line-height:1.4;
+  }
+  .doc-title .sub{font-size:12.5px;letter-spacing:.5em;color:var(--ink-3);text-indent:.5em;margin-top:6px}
+  .hair{border:0;border-top:1px solid var(--rule);margin:22px 0}
+  .notice{margin:0 0 22px}
+  .notice h2{
+    font-size:14px;letter-spacing:.3em;font-weight:700;color:var(--seal-ink);
+    margin:0 0 10px;text-indent:.3em;
+  }
+  .notice ol{margin:0;padding-left:1.9em;color:var(--ink-2);font-size:15.5px}
+  .notice ol li{margin:5px 0}
+  .notice ol li b{color:var(--ink)}
+  .form{
+    border:1px solid var(--rule);background:linear-gradient(0deg,var(--sheet-2),var(--sheet-2));
+    padding:0;margin:0 0 24px;
+  }
+  .form .row{display:grid;grid-template-columns:118px 1fr;border-bottom:1px dashed var(--rule-2)}
+  .form .row:last-child{border-bottom:0}
+  .form .k{
+    padding:11px 12px;font-size:13px;letter-spacing:.12em;color:var(--ink-2);
+    border-right:1px solid var(--rule-2);background:rgba(0,0,0,.018);
+  }
+  .form .v{padding:9px 12px;font-size:15px;display:flex;align-items:center;gap:10px;min-height:44px}
+  .form input[type=text]{
+    font-family:var(--serif);font-size:16px;color:var(--ink);
+    background:transparent;border:0;border-bottom:1px solid var(--ink-3);
+    padding:2px 4px;width:100%;max-width:280px;outline:none;
+  }
+  .form input[type=text]:focus{border-bottom-color:var(--seal)}
+  .form .v .stamp-mini{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--seal-ink);
+    border:1px solid var(--seal);padding:1px 6px;transform:rotate(-4deg);opacity:.85;
+  }
+  .muted{color:var(--ink-3);font-size:13px}
+  .actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:6px}
+  button{font-family:inherit;cursor:pointer}
+  .btn{
+    appearance:none;border:1px solid var(--ink);background:var(--ink);color:var(--sheet);
+    font-family:var(--serif);font-size:16px;letter-spacing:.18em;text-indent:.18em;
+    padding:12px 30px;transition:transform .16s ease,background .16s ease,color .16s ease,box-shadow .16s ease;
+  }
+  .btn:hover{background:var(--seal);border-color:var(--seal);box-shadow:0 6px 16px -8px rgba(168,38,31,.7)}
+  .btn:active{transform:translateY(1px)}
+  .btn.ghost{background:transparent;color:var(--ink-2);border-color:var(--rule);letter-spacing:.12em}
+  .btn.ghost:hover{background:transparent;border-color:var(--ink-3);color:var(--ink);box-shadow:none}
+  .btn:disabled{opacity:.42;cursor:not-allowed;box-shadow:none}
+  .btn:disabled:hover{background:var(--ink);border-color:var(--ink)}
+  .btn.small{font-size:13px;padding:8px 18px;letter-spacing:.1em}
+  :focus-visible{outline:2px solid var(--seal);outline-offset:3px}
+  /* ---------- exam ---------- */
+  .exam{display:grid;grid-template-columns:1fr 168px;gap:40px;align-items:start}
+  .qmeta{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink-3);
+    border-bottom:1px solid var(--rule);padding-bottom:7px;
+  }
+  .qmeta .num{color:var(--seal-ink);font-weight:600}
+  .qtext{
+    font-size:23px;line-height:1.62;font-weight:700;letter-spacing:.02em;
+    margin:22px 0 24px;text-wrap:pretty;
+  }
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{
+    display:grid;grid-template-columns:34px 1fr;align-items:start;gap:4px;
+    width:100%;text-align:left;background:transparent;
+    border:1px solid var(--rule-2);border-left:3px solid transparent;
+    padding:13px 16px 13px 12px;font-size:16.5px;color:var(--ink);line-height:1.6;
+    transition:background .15s ease,border-color .15s ease,transform .12s ease;
+  }
+  .opt .mk{
+    font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.06em;
+    padding-top:3px;transition:color .15s ease;
+  }
+  .opt:hover{background:rgba(0,0,0,.033);border-color:var(--rule);border-left-color:var(--ink-3)}
+  .opt[aria-pressed="true"]{
+    background:var(--hl);border-color:var(--ink);border-left:3px solid var(--seal);
+  }
+  .opt[aria-pressed="true"] .mk{color:var(--seal-ink)}
+  .qnav{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:26px;flex-wrap:wrap}
+  .hint{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-3)}
+  /* answer card */
+  .card-sheet{border:1px solid var(--rule);padding:12px 10px 10px;background:rgba(0,0,0,.015)}
+  .card-sheet .cap{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--ink-3);
+    text-align:center;border-bottom:1px solid var(--rule-2);padding-bottom:8px;margin-bottom:8px;
+  }
+  .card-sheet .whoami{
+    font-size:11.5px;color:var(--ink-2);text-align:center;letter-spacing:.06em;
+    padding-bottom:8px;margin-bottom:9px;border-bottom:1px dashed var(--rule-2);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .dots{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .dot{
+    aspect-ratio:1;border:1px solid var(--rule);display:grid;place-items:center;
+    font-family:var(--mono);font-size:9.5px;color:var(--ink-3);transition:.2s ease;
+  }
+  .dot.done{border-color:var(--ink);background:var(--ink);color:var(--sheet)}
+  .dot.cur{border-color:var(--seal);color:var(--seal-ink);box-shadow:0 0 0 2px var(--seal-dim)}
+  .dot.done.cur{background:var(--seal);border-color:var(--seal);color:#fff}
+  .cardfoot{
+    margin-top:11px;padding-top:8px;border-top:1px solid var(--rule-2);
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--ink-3);
+    display:flex;justify-content:space-between;gap:6px;
+  }
+  .cardfoot .no{color:var(--seal-ink)}
+  /* ---------- result ---------- */
+  .decision{
+    border-top:2px solid var(--ink);border-bottom:1px solid var(--rule);
+    padding:10px 2px 11px;margin:0 0 26px;
+  }
+  .drow{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:3px 0}
+  .decision .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--ink-3)}
+  .decision .val{font-size:21px;font-weight:700;letter-spacing:.1em;color:var(--seal-ink)}
+  .decision .val2{font-size:16px;font-weight:700;letter-spacing:.06em;color:var(--ink)}
+  .cert{
+    position:relative;border:1px solid var(--rule);padding:34px 36px 30px;
+    background:
+      radial-gradient(circle at 12% 6%,rgba(168,38,31,.05),transparent 42%),
+      var(--sheet);
+  }
+  .cert::before{
+    content:"";position:absolute;inset:6px;border:1px solid var(--rule-2);pointer-events:none;
+  }
+  .cert-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+  .cert-no{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-3);line-height:1.9}
+  .cert-no b{color:var(--ink);font-weight:600}
+  .qr{width:78px;height:78px;flex:0 0 auto;opacity:.8}
+  .cert-title{text-align:center;margin:2px 0 0}
+  .cert-title h2{
+    font-size:38px;font-weight:700;letter-spacing:.26em;text-indent:.26em;margin:0;line-height:1.35;
+  }
+  .cert-title .en{font-family:var(--mono);font-size:9.5px;letter-spacing:.34em;color:var(--ink-3);margin-top:8px}
+  .cert-body{display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center;margin-top:26px}
+  .fields{margin:0;font-size:16px}
+  .fields .f{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px dotted var(--rule-2)}
+  .fields .f:last-child{border-bottom:0}
+  .fields .fk{font-size:12.5px;letter-spacing:.06em;color:var(--ink-3);flex:0 0 98px;white-space:nowrap}
+  .fields .fv{color:var(--ink);flex:1}
+  .fields .fv.big{font-size:20px;font-weight:700;letter-spacing:.1em;color:var(--seal-ink)}
+  .idx{display:flex;align-items:baseline;gap:8px}
+  .idx .n{font-family:var(--mono);font-size:34px;letter-spacing:-.02em;line-height:1}
+  .idx .u{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .seal{width:172px;height:172px;color:var(--seal);transform:rotate(-8deg);opacity:.9;mix-blend-mode:multiply}
+  .seal text{font-family:var(--serif);fill:currentColor}
+  .seal .top{font-size:17.5px;letter-spacing:.16em}
+  .seal .star{font-size:22px}
+  .seal .lv{font-size:16px;letter-spacing:.12em;font-weight:700}
+  .seal .ft{font-size:10px;letter-spacing:.28em}
+  .remarks{margin-top:26px;border-top:1px solid var(--rule);padding-top:16px}
+  .remarks h3{
+    font-size:12px;letter-spacing:.3em;color:var(--seal-ink);margin:0 0 10px;font-weight:700;text-indent:.3em;
+  }
+  .remarks ul{margin:0;padding-left:1.2em;font-size:15px;color:var(--ink-2)}
+  .remarks li{margin:6px 0;text-wrap:pretty}
+  .sign{
+    display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-top:26px;flex-wrap:wrap;
+  }
+  .sign .who{font-family:var(--kai);font-size:19px;color:var(--ink);letter-spacing:.06em;line-height:1.6}
+  .sign .who small{display:block;font-family:var(--serif);font-size:10.5px;letter-spacing:.2em;color:var(--ink-3)}
+  .sign .date{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--ink-2);text-align:right}
+  .fineprint{font-size:12px;color:var(--ink-3);line-height:1.9;margin-top:18px;text-wrap:pretty}
+  .fineprint b{color:var(--ink-2);font-weight:600}
+  /* ---------- footer ---------- */
+  .foot{
+    position:relative;z-index:2;margin-top:34px;padding-top:12px;border-top:1px solid var(--rule);
+    display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);line-height:1.9;
+  }
+  .foot .r{text-align:right}
+  /* ---------- responsive ---------- */
+  @media (max-width:860px){
+    body{padding:18px 10px 48px}
+    .sheet{padding:30px 24px 26px}
+    .org{font-size:21px;letter-spacing:.2em}
+    .exam{grid-template-columns:1fr;gap:0}
+    .card-sheet{order:2;margin-top:26px;padding:10px 10px 12px}
+    .dots{grid-template-columns:repeat(12,1fr)}
+    .doc-title h1{font-size:26px}
+    .qtext{font-size:20px}
+    .cert{padding:24px 20px}
+    .cert-title h2{font-size:27px}
+    .fields{font-size:15px}
+    .fields .fk{flex:0 0 84px;font-size:11.5px}
+    .idx{flex-wrap:wrap;gap:6px}
+    .idx .u{font-size:10.5px;line-height:1.65}
+    .cert-body{grid-template-columns:1fr}
+    .seal{width:140px;height:140px;margin:0 auto;display:block}
+    .foot .r{text-align:left}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+  @page{ size:A4 portrait; margin:10mm; }
+  @media print{
+    html,body{background:#fff}
+    body{padding:0;font-size:15px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    body::before,.sheet::after{display:none}
+    .sheet{box-shadow:none;border:0;max-width:none;width:auto;padding:0;margin:0}
+    .no-print{display:none!important}
+
+    .masthead .org{font-size:24px;letter-spacing:.3em}
+    .org-en{font-size:8px;letter-spacing:.3em;margin-top:5px}
+    .rule-double{margin-top:10px}
+    .rule-double::after{top:3px}
+    .docline{font-size:9px;padding-top:6px}
+
+    #stage{padding-top:20px}
+    .decision{margin:0 0 14px;padding:7px 0 8px}
+    .drow{padding:2px 0}
+    .decision .lab{font-size:9.5px}
+    .decision .val{font-size:19px}
+    .decision .val2{font-size:15px}
+    .decision .muted{font-size:11.5px}
+
+    .cert{padding:20px 22px 16px;break-inside:avoid;page-break-inside:avoid}
+    .cert::before{inset:5px}
+    .cert-no{font-size:9px;line-height:1.7}
+    .qr{width:66px;height:66px}
+    .cert-title h2{font-size:34px}
+    .cert-title .en{font-size:8.5px;margin-top:6px}
+    .cert-body{margin-top:18px;gap:18px;grid-template-columns:1fr auto}
+    .fields{font-size:15.5px}
+    .fields .f{padding:4.5px 0;break-inside:avoid}
+    .fields .fk{flex:0 0 92px;font-size:11px}
+    .fields .fv.big{font-size:19px}
+    .idx .n{font-size:32px}
+    .idx .u{font-size:10.5px}
+    .seal{width:150px;height:150px;margin:0;display:block}
+
+    .remarks{margin-top:13px;padding-top:11px}
+    .remarks h3{font-size:10.5px;margin-bottom:6px}
+    .remarks ul{padding-left:1.1em}
+    .remarks li{font-size:13px;margin:3px 0;break-inside:avoid;line-height:1.58}
+
+    .sign{margin-top:12px}
+    .sign .who{font-size:17px}
+    .sign .who small{font-size:9.5px}
+    .sign .date{font-size:10px;line-height:1.55}
+
+    .fineprint{font-size:10px;line-height:1.6;margin-top:8px}
+    .foot{margin-top:9px;padding-top:7px;font-size:8px;line-height:1.65}
+  }
+</style>
+</head>
+<body>
+<main class="sheet">
+  <header class="masthead">
+    <span class="org">环球人类资格许可管理局</span>
+    <span class="org-en">Bureau of Human Qualification Licensing · Est. Somewhere</span>
+    <div class="rule-double"></div>
+    <div class="docline">
+      <span>人资许〔<b id="docYear">2026</b>〕第 <b>0417</b> 号</span>
+      <span>类别：资格认定 / 公开考核</span>
+      <span>密级：无需保密，但请勿外传</span>
+    </div>
+  </header>
+
+  <div id="stage">
+
+    <!-- ================= INTRO ================= -->
+    <section class="screen on" data-screen="intro">
+      <div class="doc-title">
+        <h1>人类资格许可证 · 申请须知</h1>
+        <div class="sub">NOTICE TO APPLICANTS</div>
+      </div>
+      <hr class="hair">
+      <div class="notice">
+        <h2>受理条件</h2>
+        <ol>
+          <li>本局负责核发《人类资格许可证》。未经许可，不得以人类身份从事日常活动，包括但不限于：排队、开会、在电梯里假装看手机。</li>
+          <li>本次考核共 <b>12 题</b>，由本局题库（现存 <b>56 题</b>）随机抽取。不设标准答案，<b>仅设标准人类</b>。答错不扣分，答得太准才扣。</li>
+          <li>考核约需 3 分钟。期间请勿离开人类社会，如需离开请提前告知。</li>
+          <li>本局不受理"我到底是不是人"一类哲学申诉。此类申诉请转交哲学系，该系已停招。</li>
+        </ol>
+      </div>
+
+      <div class="form">
+        <div class="row">
+          <div class="k">申请人</div>
+          <div class="v">
+            <input type="text" id="nameInput" maxlength="16" placeholder="请填写姓名（可留空）" autocomplete="off" spellcheck="false">
+            <span class="muted">留空则以"一位不愿具名的人类"登记</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="k">申请类别</div>
+          <div class="v">人类（自述）<span class="stamp-mini">待核实</span></div>
+        </div>
+        <div class="row">
+          <div class="k">受理窗口</div>
+          <div class="v">3 号窗口<span class="muted">— 该窗口今日已下班，请使用本系统自助办理</span></div>
+        </div>
+        <div class="row">
+          <div class="k">收费标准</div>
+          <div class="v">免费<span class="muted">— 补考收费，费用以"请自己吃一顿好的"结算</span></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="startBtn">开始考核</button>
+        <span class="hint">键盘：1–4 选择 · Enter 进入下一题</span>
+      </div>
+    </section>
+
+    <!-- ================= EXAM ================= -->
+    <section class="screen" data-screen="exam">
+      <div class="exam">
+        <div class="qwrap">
+          <div class="qmeta">
+            <span class="num" id="qnum">第 01 题 / 共 12 题</span>
+            <span id="qtag">类别：社会行为</span>
+          </div>
+          <h2 class="qtext" id="qtext">…</h2>
+          <div class="opts" id="opts"></div>
+          <div class="qnav">
+            <button class="btn ghost small" id="prevBtn">← 上一题</button>
+            <span class="hint">按 1–4 选择</span>
+            <button class="btn small" id="nextBtn">下一题 →</button>
+          </div>
+        </div>
+        <aside class="card-sheet" aria-hidden="true">
+          <div class="cap">答 题 卡 · <span id="paperNo">R-0000</span></div>
+          <div class="whoami" id="cardName">一位不愿具名的人类</div>
+          <div class="dots" id="dots"></div>
+          <div class="cardfoot"><span id="cardCount">已答 0 / 12</span><span class="no">不得涂改</span></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ================= RESULT ================= -->
+    <section class="screen" data-screen="result">
+      <div class="decision">
+        <div class="drow">
+          <span class="lab">处 理 决 定</span>
+          <span class="val" id="decisionVal">准予发证</span>
+          <span class="muted" id="decisionNote"></span>
+        </div>
+        <div class="drow">
+          <span class="lab">补 考 意 见</span>
+          <span class="val2" id="retakeVal">—</span>
+          <span class="muted" id="retakeNote"></span>
+        </div>
+      </div>
+
+      <div class="cert">
+        <div class="cert-head">
+          <div class="cert-no">
+            证书编号　<b id="certNo">—</b><br>
+            档案编号　<b id="fileNo">—</b><br>
+            试卷编号　<b id="certPaperNo">—</b><br>
+            本局留存联 · 不得转让
+          </div>
+          <svg class="qr" id="qr" viewBox="0 0 84 84" aria-hidden="true"></svg>
+        </div>
+
+        <div class="cert-title">
+          <h2>人类资格许可证</h2>
+          <div class="en">LICENCE TO BE HUMAN</div>
+        </div>
+
+        <div class="cert-body">
+          <div class="fields">
+            <div class="f"><span class="fk">持 证 人</span><span class="fv" id="fName">—</span></div>
+            <div class="f"><span class="fk">核 定 等 级</span><span class="fv big" id="fLevel">—</span></div>
+            <div class="f"><span class="fk">人 类 指 数</span><span class="fv">
+              <span class="idx"><span class="n" id="fScore">0</span><span class="u">/ 100　（本批排名：<span id="fRank">—</span>）</span></span>
+            </span></div>
+            <div class="f"><span class="fk">准 用 范 围</span><span class="fv" id="fScope">—</span></div>
+            <div class="f"><span class="fk">有 效 期 限</span><span class="fv" id="fValid">—</span></div>
+            <div class="f"><span class="fk">备　　　注</span><span class="fv">本证不作他用，遗失不补，请妥善保存。</span></div>
+          </div>
+
+          <svg class="seal" viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+              <path id="sealArc" d="M 22,100 A 78,78 0 0 1 178,100"/>
+            </defs>
+            <circle cx="100" cy="100" r="94" fill="none" stroke="currentColor" stroke-width="5.5"/>
+            <circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1.4"/>
+            <text><textPath href="#sealArc" startOffset="50%" text-anchor="middle" class="top">环球人类资格许可管理局</textPath></text>
+            <text x="100" y="97" text-anchor="middle" class="star">★</text>
+            <text x="100" y="128" text-anchor="middle" class="lv" id="sealLv">甲级人类</text>
+            <text x="100" y="150" text-anchor="middle" class="ft">发 证 专 用 章</text>
+          </svg>
+        </div>
+
+        <div class="remarks">
+          <h3>审 核 评 语</h3>
+          <ul id="remarks"></ul>
+        </div>
+
+        <div class="sign">
+          <div class="who">一位很忙的人<small>签 发 人 · 局 长（代签）</small></div>
+          <div class="date" id="issueDate">—</div>
+        </div>
+      </div>
+
+      <p class="fineprint">
+        <b>附注：</b>本证仅证明持证人具备基本人类行为特征，不构成对其幽默感、财务状况、情感稳定性及"能不能早起"的担保。持证人须每年提交一次"我还在"的书面证明，逾期未提交者视为已迁徙至其他物种。<br>
+        本页为民间戏作，不具任何法律效力，也不承担任何道德责任。
+      </p>
+
+      <div class="actions no-print" style="margin-top:22px">
+        <button class="btn" id="againBtn">重新申请（再次作答）</button>
+        <button class="btn ghost" onclick="window.print()">打印 / 另存为 PDF</button>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="foot">
+    <div>
+      环球人类资格许可管理局 · 受理处<br>
+      地址：不详　办公时间：周一至周五 9:00–11:30、13:30–16:00（节假日及心情不好除外）
+    </div>
+    <div class="r">
+      咨询电话：0000-0000000<br>
+      接通后请先说明来意。本局不受理情绪。
+    </div>
+  </footer>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ 题库：每题选项带 s(人类度 0-10) 与 f(标签 h人性 / b服从 / c混沌 / n可疑) ============ */
+  var Q = [
+    { tag:"类别：深夜行为", q:"凌晨两点，你在床上突然想起十年前的一句尴尬发言。你的第一反应是：", o:[
+      { t:"用被子蒙住头，把那一幕重播 27 遍。", s:8,  f:["h","c"] },
+      { t:"起身写下《反思记录》，明早复盘并制定改进措施。", s:4,  f:["b","n"] },
+      { t:"打开手机，搜索「如何选择性删除记忆」。", s:6,  f:["h"] },
+      { t:"我没有尴尬记忆，可能是系统里没存。", s:1,  f:["n"], note:"档案备注：持证人否认曾发生任何尴尬事件，此项与全体人类样本不符，已单独登记。" }
+    ]},
+    { tag:"类别：公共空间", q:"电梯里遇到不太熟的同事，你要去的是 17 层。你会：", o:[
+      { t:"盯着楼层数字，假装那是本世纪最重要的数据。", s:7,  f:["b"] },
+      { t:"主动说「今天天气不错」，然后一起沉默 90 秒。", s:10, f:["h"] },
+      { t:"掏出手机，假装在处理重要事务。", s:6,  f:["b"] },
+      { t:"提前在 3 层下电梯，改走楼梯。", s:5,  f:["c"] }
+    ]},
+    { tag:"类别：社交应答", q:"朋友问你「最近怎么样」，你的标准答案是：", o:[
+      { t:"「还行，就是有点累。」", s:10, f:["h"] },
+      { t:"「正在推进若干事项。」", s:3,  f:["b","n"] },
+      { t:"认真讲了 40 分钟，包括体检报告。", s:7,  f:["h","c"] },
+      { t:"「你指哪个方面？请明确范围。」", s:1,  f:["n"] }
+    ]},
+    { tag:"类别：档案管理", q:"你的手机相册里，数量最多的是：", o:[
+      { t:"截图。全是截图。没有一张人。", s:3,  f:["b","n"] },
+      { t:"猫、狗、别人家的猫狗。", s:10, f:["h"] },
+      { t:"天空、路灯、便利店。", s:8,  f:["h"] },
+      { t:"同一顿饭的 37 个角度。", s:7,  f:["c"] }
+    ]},
+    { tag:"类别：组织行为", q:"会议上有人说了个你完全同意的观点，你会：", o:[
+      { t:"点头，并补充「对，我也是这么想的」。", s:9,  f:["h","b"] },
+      { t:"沉默，在心里把这人列入「可合作名单」。", s:4,  f:["b","n"] },
+      { t:"用自己的话把观点再讲一遍，讲得更长。", s:5,  f:["c"] },
+      { t:"在记事本记下：「人类常用社交仪式：附议」。", s:1,  f:["n"] }
+    ]},
+    { tag:"类别：零售场景", q:"超市结账，收银员问「要袋子吗」，你其实不太需要，但：", o:[
+      { t:"「不用，谢谢。」干脆利落。", s:9,  f:["h","b"] },
+      { t:"「不用。」然后抱着东西走三步掉一件。", s:8,  f:["h","c"], note:"档案备注：持证人存在抱物行走的能力缺陷，认定为人性加分项。" },
+      { t:"「要。」回家塞进那个已经装了 400 个袋子的袋子。", s:9,  f:["h"] },
+      { t:"停顿三秒：「请给我一份书面说明。」", s:1,  f:["n","b"] }
+    ]},
+    { tag:"类别：情感处理", q:"有人夸你「你人真好」，你的内部反应是：", o:[
+      { t:"有点心虚，很想解释我其实很自私。", s:10, f:["h"] },
+      { t:"归档：社交资产 +1。", s:2,  f:["n"] },
+      { t:"立刻回夸，形成互夸循环。", s:8,  f:["h","b"] },
+      { t:"「依据是什么？请列举三点。」", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：时间感知", q:"关于「周一」，你的态度是：", o:[
+      { t:"周日晚上就开始难过。", s:9,  f:["h"] },
+      { t:"无感。我按周期运行。", s:2,  f:["n"] },
+      { t:"靠咖啡与自我欺骗熬过去。", s:8,  f:["h"] },
+      { t:"周一？我一直以为是周三。", s:5,  f:["c"] }
+    ]},
+    { tag:"类别：情绪触发", q:"深夜刷到一只鸭子被风吹得站不稳的视频，你会：", o:[
+      { t:"笑出声，转发给三个人。", s:10, f:["h"] },
+      { t:"分析风力与重心，写下三个变量。", s:2,  f:["n"] },
+      { t:"有点难过，替鸭子委屈。", s:9,  f:["h"] },
+      { t:"保存，命名为「2026-04-17 重要资料」。", s:5,  f:["c","b"] }
+    ]},
+    { tag:"类别：身份举证", q:"如果现在必须为「你是人类」提供证据，你会：", o:[
+      { t:"展示聊天记录，全是「哈哈哈」。", s:9,  f:["h"], note:"档案备注：持证人提供的主要人类证据为连续「哈哈哈」，本局予以采信。" },
+      { t:"出示体检报告、地铁卡和一张过期的电影票。", s:8,  f:["b","h"] },
+      { t:"沉默三秒，然后说「我思故我在」。", s:5,  f:["n"] },
+      { t:"「你凭什么怀疑我？」", s:3,  f:["n","c"] }
+    ]},
+    { tag:"类别：泪点测评", q:"你最近一次哭，是因为：", o:[
+      { t:"一部广告。", s:10, f:["h"] },
+      { t:"没哭过。情绪已归档。", s:1,  f:["n"] },
+      { t:"想到某个人。", s:9,  f:["h"] },
+      { t:"找不到充电线。", s:6,  f:["c"] }
+    ]},
+    { tag:"类别：收卷态度", q:"考核即将结束，你更愿意：", o:[
+      { t:"交卷，去吃一碗面。", s:10, f:["h"] },
+      { t:"检查三遍答题卡是否有涂改痕迹。", s:4,  f:["b"] },
+      { t:"在背面写一段没有收件人的话。", s:7,  f:["c"] },
+      { t:"询问本考试是否有申诉渠道。", s:2,  f:["b","n"] }
+    ]},
+    { tag:"类别：深夜消息", q:"凌晨一点，有人发来两个字：「在吗」。你会：", o:[
+      { t:"立刻回一个「在」，然后盯着屏幕等下文。", s:9,  f:["h","c"], note:"档案备注：持证人会在深夜回「在」，并为此等到两点，此项计入人性。" },
+      { t:"假装没看见，第二天早上再回「刚看到」。", s:6,  f:["b"] },
+      { t:"回「请问是什么事？」", s:2,  f:["n"] },
+      { t:"三小时后回一个「？」", s:5,  f:["c"] }
+    ]},
+    { tag:"类别：冲动消费", q:"你走进便利店，只打算买一瓶水。走出来时你手里有：", o:[
+      { t:"一瓶水。仅此一瓶，我很克制。", s:9,  f:["h"] },
+      { t:"水、饭团、关东煮，以及一个当时觉得很必要的小玩意。", s:7,  f:["c"] },
+      { t:"什么都没买，因为排队超过了我的忍耐阈值。", s:6,  f:["b"] },
+      { t:"我按采购清单执行，清单上只有水。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：群体协作", q:"微信群里有人发起接龙填表。你的第一反应：", o:[
+      { t:"先看别人怎么填，确认格式再动手。", s:7,  f:["b"] },
+      { t:"等别人填完，抄一个。", s:6,  f:["b","c"] },
+      { t:"直接填，然后把表格重排成更规范的样式发回去。", s:4,  f:["b","n"] },
+      { t:"我不参与任何需要接龙的事。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：公共道德", q:"地铁上你坐着，一位看起来比你更累的人站着。你会：", o:[
+      { t:"站起来让座，尽管你还有三站就到了。", s:10, f:["h"] },
+      { t:"快速评估对方是否需要，然后假装睡着。", s:7,  f:["h","c"] },
+      { t:"一直纠结到下车，最后也没让。", s:8,  f:["h"] },
+      { t:"我从不坐，站着更省事。", s:3,  f:["n"] }
+    ]},
+    { tag:"类别：日常寒暄", q:"有人问你「你吃了吗」，而他其实并不关心答案。你会：", o:[
+      { t:"认真回答吃了什么。", s:9,  f:["h"] },
+      { t:"「吃了吃了，你呢。」", s:10, f:["h","b"] },
+      { t:"沉默一秒，然后真的开始回想自己吃没吃。", s:7,  f:["c"] },
+      { t:"「你问这个是出于什么目的？」", s:1,  f:["n"] }
+    ]},
+    { tag:"类别：信息囤积", q:"你浏览器里的标签页数量：", o:[
+      { t:"少于 5 个，用完就关。", s:4,  f:["b"] },
+      { t:"20 个左右，都是「以后要看」。", s:8,  f:["h","b"] },
+      { t:"60 个以上，其中一半我已经不知道是什么。", s:6,  f:["c"] },
+      { t:"我从不新开标签，我在同一个页面里换网址。", s:2,  f:["c","n"] }
+    ]},
+    { tag:"类别：两难时刻", q:"快递到了，而你正在洗澡。你会：", o:[
+      { t:"顶着一头泡沫冲出去开门。", s:10, f:["h","c"] },
+      { t:"让放门口，然后装作不在家。", s:8,  f:["h"] },
+      { t:"洗完再取，接受它可能已经不在了。", s:6,  f:["b"] },
+      { t:"我提前规划了洗澡时间与快递时段。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：沟通礼仪", q:"朋友发来一段 3 分钟的语音。你会：", o:[
+      { t:"老老实实听完，还要回一句「嗯嗯我懂」。", s:9,  f:["h"] },
+      { t:"转成文字，看个大概。", s:7,  f:["b"] },
+      { t:"先放着，三天后彻底忘记。", s:6,  f:["c"] },
+      { t:"「我不听语音，请发文字。」", s:2,  f:["n","b"] }
+    ]},
+    { tag:"类别：突发事故", q:"电梯里只有你和一位陌生人，而你放了个屁。你会：", o:[
+      { t:"假装什么都没发生，但耳朵发热。", s:9,  f:["h"] },
+      { t:"小声说一句「不好意思」。", s:9,  f:["h"] },
+      { t:"立刻快速刷手机，制造噪音掩护。", s:7,  f:["b","c"] },
+      { t:"主动报告：「刚才那个是我。」", s:8,  f:["h","c"], note:"档案备注：持证人选择当场认领，本局认为此行为极难伪造，予以采信。" }
+    ]},
+    { tag:"类别：家务标准", q:"关于「把袜子翻过来再洗」，你的立场是：", o:[
+      { t:"洗之前一定翻好。", s:5,  f:["b"] },
+      { t:"洗完再说，反正都会干。", s:8,  f:["h"] },
+      { t:"从不翻，也从不洗。", s:5,  f:["c"] },
+      { t:"我按洗涤标签与材质分类处理。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：诚实困境", q:"餐厅的菜很难吃，服务员问「还合口味吗」。你会：", o:[
+      { t:"「挺好的。」", s:8,  f:["h"] },
+      { t:"「还行。」然后低头继续吃。", s:9,  f:["h"] },
+      { t:"认真描述问题，并给出三条改进建议。", s:6,  f:["b","n"] },
+      { t:"沉默很久，然后说「这道菜有很多可能性」。", s:7,  f:["c"] }
+    ]},
+    { tag:"类别：电量焦虑", q:"手机电量 20%，而你还在外面。你的状态是：", o:[
+      { t:"焦虑，开始计算剩余电量还能撑多久。", s:9,  f:["h"] },
+      { t:"立刻找插座、充电宝或共享充电。", s:7,  f:["b"] },
+      { t:"无所谓。关机也是一种活法。", s:6,  f:["c"] },
+      { t:"我的手机从不让它低于 60。", s:3,  f:["n","b"] }
+    ]},
+    { tag:"类别：走廊博弈", q:"你和一个人迎面走过，你们往同一边让了两次。你会：", o:[
+      { t:"笑一下，说「你先请」。", s:10, f:["h"] },
+      { t:"干脆停住不动，让他先过。", s:8,  f:["h","b"] },
+      { t:"一套复杂假动作，加一个小跳。", s:6,  f:["c"] },
+      { t:"面无表情各让一次，然后加速离开。", s:3,  f:["b"] }
+    ]},
+    { tag:"类别：灵感处理", q:"洗澡时你突然想通了一个人生道理。你会：", o:[
+      { t:"出来就忘了。", s:9,  f:["h"] },
+      { t:"湿着手在镜子上写下来。", s:8,  f:["c"] },
+      { t:"拿手机记，然后洗澡变成 40 分钟。", s:8,  f:["h","c"] },
+      { t:"出来后整理成三条要点，发给三个人。", s:3,  f:["n","b"] }
+    ]},
+    { tag:"类别：虚假赞美", q:"有人夸你「你瘦了」，而你其实并没有。你会：", o:[
+      { t:"「没有没有，还是老样子。」", s:9,  f:["h"] },
+      { t:"「最近在控制饮食。」", s:7,  f:["b"] },
+      { t:"「谢谢，我最近在研究卡路里收支模型。」", s:3,  f:["n"] },
+      { t:"「你怎么判断的？有数据吗？」", s:1,  f:["n"] }
+    ]},
+    { tag:"类别：规则测试", q:"路口红灯，60 秒，路上完全没车。你会：", o:[
+      { t:"站着等完整个 60 秒。", s:6,  f:["b"] },
+      { t:"左右看三次，然后过。", s:9,  f:["h"] },
+      { t:"直接走，理直气壮。", s:6,  f:["c"] },
+      { t:"等，同时在心里对闯红灯的人进行道德评估。", s:8,  f:["h","b"] }
+    ]},
+    { tag:"类别：餐饮备注", q:"你点外卖时，备注栏通常写着：", o:[
+      { t:"什么都不写，随缘。", s:9,  f:["h"] },
+      { t:"「不用敲门，放门口，谢谢。」", s:7,  f:["b"] },
+      { t:"「多给一双筷子。」", s:8,  f:["h"] },
+      { t:"一段 80 字关于香菜的科学说明。", s:3,  f:["n","c"] }
+    ]},
+    { tag:"类别：反射神经", q:"有人在离你半米的地方打了个喷嚏。你的反应：", o:[
+      { t:"说「保佑你」。", s:9,  f:["h"] },
+      { t:"说「健康」。", s:8,  f:["h","b"] },
+      { t:"立刻屏住呼吸，并后退 1.5 米。", s:6,  f:["b"] },
+      { t:"分析刚才的气溶胶扩散半径。", s:1,  f:["n"] }
+    ]},
+    { tag:"类别：数字秩序", q:"你多久整理一次电脑桌面？", o:[
+      { t:"从不。桌面是文件夹的墓地。", s:6,  f:["c"] },
+      { t:"每月一次，删掉 90%。", s:5,  f:["b"] },
+      { t:"用三个文件夹区分「现在 / 以后 / 永远不看」。", s:4,  f:["b","n"] },
+      { t:"我没有桌面，所有文件都在下载文件夹里。", s:7,  f:["c"] }
+    ]},
+    { tag:"类别：陌生人邮件", q:"收到一封开头是「冒昧打扰」的邮件。你会：", o:[
+      { t:"心里一沉，先看最后一句要什么。", s:9,  f:["h"] },
+      { t:"「不冒昧，请讲。」", s:9,  f:["h","b"] },
+      { t:"归档，不读。", s:5,  f:["b"] },
+      { t:"「请按正式格式重发，写明事由与诉求。」", s:1,  f:["n"] }
+    ]},
+    { tag:"类别：内部对话", q:"你会在什么情况下自言自语？", o:[
+      { t:"找东西的时候。", s:9,  f:["h"] },
+      { t:"复盘刚才的对话时。", s:9,  f:["h","c"] },
+      { t:"从不。我说话都有对象。", s:2,  f:["n"] },
+      { t:"在超市里念购物清单，被别人听见。", s:8,  f:["h","c"] }
+    ]},
+    { tag:"类别：失手现场", q:"牛奶倒太急，洒了一桌。你会：", o:[
+      { t:"立刻擦干净，并责怪自己三分钟。", s:9,  f:["h"] },
+      { t:"拿抹布随便抹两下，明天再说。", s:6,  f:["c"] },
+      { t:"先拍照发朋友圈。", s:6,  f:["c"] },
+      { t:"用漏斗。我从不洒。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：数字遗物", q:"相册里你最舍不得删的那张照片是：", o:[
+      { t:"一张模糊的、和某些人一起的照片。", s:10, f:["h"] },
+      { t:"一张别人随手拍的、你笑得很丑的。", s:10, f:["h"] },
+      { t:"一张截图，内容已经忘了为什么存。", s:6,  f:["b"] },
+      { t:"没有。我的相册按日期和主题管理。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：入职首日", q:"新公司第一天中午，大家说「一起去吃饭吧」。你会：", o:[
+      { t:"跟着去，什么都不点，全程微笑。", s:8,  f:["h","b"] },
+      { t:"自己带饭，坐在工位吃。", s:8,  f:["h"] },
+      { t:"主动问「附近哪家好吃」。", s:9,  f:["h"] },
+      { t:"提前一天做了餐厅调研，并准备好了推荐清单。", s:3,  f:["n","b"], note:"档案备注：持证人入职前一天完成餐厅调研。本局不评价，但完全理解。" }
+    ]},
+    { tag:"类别：陌生微笑", q:"电梯里有人对你笑了一下，你并不认识他。你会：", o:[
+      { t:"也笑一下。", s:10, f:["h"] },
+      { t:"僵硬地点头。", s:8,  f:["h","b"] },
+      { t:"立刻检查自己是不是拉链没拉。", s:9,  f:["h","c"] },
+      { t:"分析这是否是某种社交信号。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：夜间异响", q:"半夜楼上传来弹珠掉地的声音。你会：", o:[
+      { t:"翻个身继续睡。", s:8,  f:["h"] },
+      { t:"想三分钟「那到底是什么」，然后睡。", s:9,  f:["h"] },
+      { t:"穿鞋上楼敲门询问。", s:6,  f:["c"] },
+      { t:"记录发生时间与频率，形成规律。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：金钱秩序", q:"你的记账习惯是：", o:[
+      { t:"不记。钱是一种流动。", s:6,  f:["c"] },
+      { t:"记，但只记大额。", s:6,  f:["b"] },
+      { t:"每笔都记，包括 1 元。", s:3,  f:["n","b"] },
+      { t:"我知道自己花了多少，一直知道。", s:1,  f:["n"] }
+    ]},
+    { tag:"类别：安慰技术", q:"朋友说「我最近很难过」。你会：", o:[
+      { t:"认真问「怎么了」。", s:10, f:["h"] },
+      { t:"先说「我在」，然后等他自己讲。", s:10, f:["h"] },
+      { t:"立刻给出三条解决方案。", s:4,  f:["n","b"] },
+      { t:"沉默，然后递一杯水。", s:9,  f:["h"], note:"档案备注：持证人以递水代替安慰。此处无声，但属高质量人类行为。" }
+    ]},
+    { tag:"类别：被迫社交", q:"排队时前面的人突然和你搭话，讲起了他的人生。你会：", o:[
+      { t:"认真听，并适时点头。", s:9,  f:["h"] },
+      { t:"一直找机会结束这段对话。", s:8,  f:["h","b"] },
+      { t:"开始讲自己的人生，讲得比他还长。", s:7,  f:["c"] },
+      { t:"我在排队时戴耳机。", s:4,  f:["b"] }
+    ]},
+    { tag:"类别：冰箱时刻", q:"你站在开着门的冰箱前，什么也没拿。你在：", o:[
+      { t:"想今天吃什么，已经想了五分钟。", s:9,  f:["h"] },
+      { t:"只是让冷气吹一下。", s:8,  f:["c"] },
+      { t:"检查还有没有东西。", s:6,  f:["b"] },
+      { t:"我在整理冰箱的库存清单。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：审美表达", q:"有人问「你最喜欢的电影是什么」。你会：", o:[
+      { t:"说一个大家都喜欢的。", s:7,  f:["b"] },
+      { t:"说了五部，并解释为什么不能只选一部。", s:9,  f:["c"] },
+      { t:"愣住，发现我一部也想不起来。", s:9,  f:["h"] },
+      { t:"「你指的是哪个维度的喜欢？」", s:1,  f:["n"] }
+    ]},
+    { tag:"类别：行走事故", q:"走在路上，鞋带开了。你会：", o:[
+      { t:"当场蹲下系。", s:9,  f:["h"] },
+      { t:"走到路边再系。", s:7,  f:["b"] },
+      { t:"就这样走，直到有人提醒。", s:6,  f:["c"] },
+      { t:"我穿没有鞋带的鞋。", s:4,  f:["b"] }
+    ]},
+    { tag:"类别：时间管理", q:"你的闹钟设了几个？", o:[
+      { t:"一个。响了就起。", s:5,  f:["b"] },
+      { t:"五个，间隔三分钟。", s:9,  f:["h"] },
+      { t:"十几个，从 6:40 排到 8:10。", s:7,  f:["c"] },
+      { t:"我不需要闹钟，我按时醒。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：群体失语", q:"所有人都在笑一个你没听懂的梗。你会：", o:[
+      { t:"跟着笑。", s:9,  f:["h"] },
+      { t:"当场问「什么意思」。", s:9,  f:["h"] },
+      { t:"假装笑，回家再查。", s:8,  f:["b","c"] },
+      { t:"记录下来，事后分析笑点结构。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：清洁阈值", q:"你打扫房间的触发条件是：", o:[
+      { t:"有客人要来。", s:9,  f:["h","b"] },
+      { t:"找不到东西了。", s:8,  f:["h"] },
+      { t:"心情不好。", s:9,  f:["h","c"] },
+      { t:"每周日固定时间。", s:4,  f:["b","n"] }
+    ]},
+    { tag:"类别：便利店仪式", q:"站在关东煮前面，你会：", o:[
+      { t:"只要一份，慢慢吃。", s:9,  f:["h"] },
+      { t:"站在那里犹豫三分钟。", s:9,  f:["h"] },
+      { t:"把每种都夹一个。", s:7,  f:["c"] },
+      { t:"我不吃来源不明的食物。", s:3,  f:["n"] }
+    ]},
+    { tag:"类别：通知管理", q:"你手机的通知是：", o:[
+      { t:"全部开着，已经习惯被叫。", s:7,  f:["h","c"] },
+      { t:"只保留必要的几个。", s:6,  f:["b"] },
+      { t:"全部关掉。世界安静。", s:8,  f:["h"] },
+      { t:"分了三层优先级。", s:2,  f:["n","b"] }
+    ]},
+    { tag:"类别：社交防守", q:"有人问「你周末干嘛」，而你什么都没干。你会：", o:[
+      { t:"「没干嘛，就休息。」", s:10, f:["h"] },
+      { t:"现编一件事。", s:8,  f:["h","c"] },
+      { t:"详细说明我什么都没干的细节。", s:8,  f:["c"] },
+      { t:"「我在做一件长期的事，不方便说。」", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：自然接触", q:"你有多久没认真看过一次日落？", o:[
+      { t:"想不起来了。", s:6,  f:["c"] },
+      { t:"上周还看了，还拍了。", s:10, f:["h"], note:"档案备注：持证人上周拍摄了日落。此不构成任何证据，但本局愿意采信。" },
+      { t:"每天都在看，通勤路上。", s:9,  f:["h"] },
+      { t:"我看日落的频率有记录。", s:1,  f:["n"] }
+    ]},
+    { tag:"类别：临场发言", q:"你被要求「随便说两句」。你会：", o:[
+      { t:"真的随便说了两句。", s:9,  f:["h"] },
+      { t:"说之前偷偷准备了一段。", s:7,  f:["b"] },
+      { t:"说了十分钟，最后不知道说到哪。", s:7,  f:["c"] },
+      { t:"「请明确一下场合、时长和听众。」", s:1,  f:["n"] }
+    ]},
+    { tag:"类别：外设选择", q:"你的手机壳：", o:[
+      { t:"没有壳。裸机。", s:6,  f:["c"] },
+      { t:"用了三年，边角已经发黄。", s:9,  f:["h"] },
+      { t:"换过五个，按心情。", s:8,  f:["h","c"] },
+      { t:"我按防摔等级选的。", s:3,  f:["n","b"] }
+    ]},
+    { tag:"类别：门口遭遇", q:"有人上门推销，而你在家。你会：", o:[
+      { t:"「不需要，谢谢」，然后关门。", s:9,  f:["h","b"] },
+      { t:"听他说完，再说「不需要」。", s:10, f:["h"] },
+      { t:"假装不在家。", s:7,  f:["b"] },
+      { t:"询问他的销售话术结构。", s:2,  f:["n"] }
+    ]},
+    { tag:"类别：数字考古", q:"你什么时候会翻自己的旧聊天记录？", o:[
+      { t:"从不。过去的事我不回看。", s:3,  f:["n"] },
+      { t:"深夜，翻到某一段，然后睡不着。", s:10, f:["h"] },
+      { t:"找地址、电话的时候。", s:7,  f:["b"] },
+      { t:"定期备份，并分类归档。", s:2,  f:["n","b"] }
+    ]},
+    { tag:"类别：入睡承诺", q:"今晚你打算几点睡？", o:[
+      { t:"十一点。说到做到。（通常是假的）", s:8,  f:["h","b"] },
+      { t:"十二点。", s:8,  f:["h"] },
+      { t:"不知道，看情况。", s:8,  f:["h","c"] },
+      { t:"我的睡眠时间由计划表决定。", s:2,  f:["n"] }
+    ]}
+  ];
+
+  var LEVELS = [
+    { min:88, name:"特级人类", seal:"特级人类", scope:"全体人类社会，含无人区",
+      valid:"自签发之日起三年（须每年提交「我还在」证明）",
+      dec:"准予发证，并建议列为示范样本", note:"（请配合宣传拍摄）" },
+    { min:72, name:"甲级人类", seal:"甲级人类", scope:"日常社会生活全部场景",
+      valid:"自签发之日起三年（须每年提交「我还在」证明）",
+      dec:"准予发证", note:"（本批之中，还算像个人）" },
+    { min:56, name:"乙级人类", seal:"乙级人类", scope:"日常社会生活，重大场合需陪同",
+      valid:"自签发之日起两年（婚礼、葬礼需报备）",
+      dec:"准予发证", note:"（能用，注意保养）" },
+    { min:40, name:"丙级人类", seal:"丙级人类", scope:"限家庭、便利店及三点一线通勤",
+      valid:"自签发之日起一年（届时需重新证明会做饭）",
+      dec:"准予发证 · 限场景使用", note:"（不建议出席婚礼）" },
+    { min:24, name:"临时人类", seal:"临时人类", scope:"限室内，需监护人在场，禁止独自思考人生",
+      valid:"自签发之日起 30 天（不可续期）",
+      dec:"核发临时通行证，有效期 30 天", note:"（到期须重申，不可续期）" },
+    { min:-1, name:"暂缓发证", seal:"暂缓", scope:"无。请留在原处不要动",
+      valid:"不适用（本证尚未生效）",
+      dec:"暂缓发证 · 转介碳基身份复核", note:"（复核窗口已下班）" }
+  ];
+
+  var PAPER_SIZE = 12;
+  var state = { name:"", paper:[], answers:[], idx:0, paperNo:"" };
+
+  // 从题库随机抽取 12 题（Fisher–Yates）
+  function drawPaper(){
+    var bag = Q.slice();
+    for(var i=bag.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t = bag[i]; bag[i] = bag[j]; bag[j] = t;
+    }
+    return bag.slice(0, PAPER_SIZE);
+  }
+
+  /* ---------- helpers ---------- */
+  function $(s){ return document.querySelector(s); }
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function pad(n){ return (n<10?"0":"")+n; }
+  function show(name){
+    var all = document.querySelectorAll(".screen");
+    for(var i=0;i<all.length;i++){ all[i].classList.toggle("on", all[i].getAttribute("data-screen")===name); }
+    window.scrollTo({ top:0, behavior:"instant" in document.documentElement.style ? "instant" : "auto" });
+  }
+
+  /* ---------- question rendering ---------- */
+  var optsEl = $("#opts"), dotsEl = $("#dots");
+
+  function buildDots(){
+    var h = "";
+    for(var i=0;i<PAPER_SIZE;i++){ h += '<div class="dot" data-i="'+i+'">'+pad(i+1)+'</div>'; }
+    dotsEl.innerHTML = h;
+  }
+  function paintDots(){
+    var ds = dotsEl.children, done = 0;
+    for(var i=0;i<ds.length;i++){
+      if(state.answers[i]!==null) done++;
+      ds[i].className = "dot" + (state.answers[i]!==null?" done":"") + (i===state.idx?" cur":"");
+    }
+    var c = document.getElementById("cardCount");
+    if(c) c.textContent = "已答 " + done + " / " + PAPER_SIZE;
+  }
+  function renderQ(){
+    var q = state.paper[state.idx];
+    $("#qnum").textContent = "第 " + pad(state.idx+1) + " 题 / 共 " + PAPER_SIZE + " 题";
+    $("#qtag").textContent = q.tag;
+    $("#qtext").textContent = q.q;
+    optsEl.innerHTML = "";
+    var letters = ["A","B","C","D"];
+    q.o.forEach(function(o, i){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "opt";
+      b.setAttribute("aria-pressed", state.answers[state.idx]===i ? "true" : "false");
+      b.innerHTML = '<span class="mk">'+letters[i]+'</span><span>'+esc(o.t)+'</span>';
+      b.addEventListener("click", function(){ pick(i); });
+      optsEl.appendChild(b);
+    });
+    $("#prevBtn").disabled = state.idx===0;
+    var last = state.idx===PAPER_SIZE-1;
+    $("#nextBtn").textContent = last ? "提交答卷" : "下一题 →";
+    $("#nextBtn").disabled = last && state.answers[state.idx]===null;
+    paintDots();
+  }
+
+  var advanceTimer = null;
+  function pick(i){
+    state.answers[state.idx] = i;
+    var btns = optsEl.children;
+    for(var k=0;k<btns.length;k++){ btns[k].setAttribute("aria-pressed", k===i?"true":"false"); }
+    paintDots();
+    var last = state.idx===PAPER_SIZE-1;
+    $("#nextBtn").disabled = last && false;
+    if(!last){
+      clearTimeout(advanceTimer);
+      advanceTimer = setTimeout(function(){ go(state.idx+1); }, 290);
+    }
+  }
+  function go(i){
+    clearTimeout(advanceTimer);
+    if(i < 0 || i >= PAPER_SIZE) return;
+    state.idx = i;
+    renderQ();
+    window.scrollTo({ top:0, behavior:"smooth" });
+  }
+  function next(){
+    if(state.answers[state.idx]===null) return;
+    if(state.idx === PAPER_SIZE-1){ finish(); } else { go(state.idx+1); }
+  }
+
+  /* ---------- scoring ---------- */
+  function tally(){
+    var total=0, f={h:0,b:0,c:0,n:0};
+    state.paper.forEach(function(question, i){
+      var o = question.o[state.answers[i]];
+      total += o.s;
+      o.f.forEach(function(t){ f[t]++; });
+    });
+    return { total:total, pct:Math.round(total / (PAPER_SIZE*10) * 100), f:f };
+  }
+  function hashStr(str){
+    var h = 2166136261;
+    for(var i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+
+  /* ---------- remarks ---------- */
+  function buildRemarks(f, pct){
+    var out = [];
+    var dominant = "h";
+    ["n","c","b"].forEach(function(k){ if(f[k] > f[dominant]) dominant = k; });
+    var profile = {
+      h:"整体偏向温和、易被生活打动的一类，属本局统计意义上的多数。",
+      b:"整体偏向守序、擅长排队与填表的一类，请继续保持，本局靠你们运转。",
+      c:"整体偏向不可预测、随时可能临时更改人生计划的一类，已单独建档。",
+      n:"整体偏向精确、情绪稀薄、动辄索要依据的一类，本局对此保持关注。"
+    }[dominant];
+    out.push("总评：人类指数 " + pct + "/100，" + profile);
+    if(f.h >= 7) out.push("持证人具备稳定的人类软肋：会为广告、鸭子和电梯里的沉默破防。此项为合格特征，予以保留，请勿擅自治愈。");
+    if(f.n >= 5) out.push("检测到明显的非人类行为模式：回答精确、情绪归零、动辄索要书面说明。已记入观察名单，建议每季度接受一次随机逗笑测试。");
+    if(f.c >= 4) out.push("混沌值偏高，具备在便利店门口临时更改整个人生计划的能力。不宜委以重要职务，但极适合参加团建。");
+    if(f.b >= 5) out.push("服从性良好，能自觉排队、如实填表，并在被问「要袋子吗」时给出明确答复。属本局重点保护对象。");
+    if(f.h <= 3) out.push("共情反应偏弱。建议每周观看一次小猫视频，连续四周后复核；如无改善，可改用小狗。");
+    if(pct >= 88) out.push("综合表现优异，可作为本局对外宣传素材。使用前需另行签署肖像授权及「我确实这样」声明。");
+    if(pct < 40) out.push("建议返厂检修。若无法返厂，请就近寻找一位愿意陪你吃碗面的人类，并在其陪同下重新申请。");
+    if(out.length < 3) out.push("补充说明：持证人完整答完全部题目，未中途关闭页面，此项已计入印象分。");
+    if(out.length < 3) out.push("本局保留随时怀疑持证人并非人类的权利，行使时不另行通知。");
+    return out.slice(0,4);
+  }
+  function archiveNote(){
+    var notes = [];
+    state.paper.forEach(function(q, i){
+      var o = q.o[state.answers[i]];
+      if(o && o.note) notes.push(o.note);
+    });
+    return notes;
+  }
+
+  /* ---------- QR-ish block ---------- */
+  function drawQR(seed){
+    var svg = $("#qr"); svg.innerHTML = "";
+    var n = 21, cell = 4, pad0 = 3;
+    var rnd = (function(s){ return function(){ s ^= s<<13; s ^= s>>>17; s ^= s<<5; return ((s>>>0)/4294967296); }; })(seed || 1);
+    function inFinder(x,y,ox,oy){ return x>=ox-1 && x<=ox+7 && y>=oy-1 && y<=oy+7; }
+    var NS = "http://www.w3.org/2000/svg";
+    for(var y=0;y<n;y++){
+      for(var x=0;x<n;x++){
+        var on = rnd() > .52;
+        // 三个定位角
+        var fx = (x>=0&&x<=6&&y>=0&&y<=6), fy=(x>=14&&x<=20&&y>=0&&y<=6), fz=(x>=0&&x<=6&&y>=14&&y<=20);
+        if(fx||fy||fz){
+          var ox = fx?0:(fy?14:0), oy = fz?14:0;
+          var lx = x-ox, ly = y-oy;
+          on = (lx===0||lx===6||ly===0||ly===6) || (lx>=2&&lx<=4&&ly>=2&&ly<=4);
+        }
+        if(!on) continue;
+        var r = document.createElementNS(NS,"rect");
+        r.setAttribute("x", pad0 + x*cell);
+        r.setAttribute("y", pad0 + y*cell);
+        r.setAttribute("width", cell);
+        r.setAttribute("height", cell);
+        r.setAttribute("fill", "#211e19");
+        svg.appendChild(r);
+      }
+    }
+  }
+
+  /* ---------- result ---------- */
+  function finish(){
+    var t = tally(), pct = t.pct;
+    var lv = LEVELS.find(function(L){ return pct >= L.min; }) || LEVELS[LEVELS.length-1];
+
+    // 特殊处理：非人类嫌疑过重时，等级下调
+    var decisionVal = lv.dec, decisionNote = lv.note, levelName = lv.name, sealLv = lv.seal;
+    if(t.f.n >= 7 && pct >= 56){
+      levelName = "待复核人类";
+      sealLv = "待复核";
+      decisionVal = "暂缓发证 · 转介碳基身份复核";
+      decisionNote = "（回答过于精确，触发本局自动警觉）";
+    }
+
+    var name = state.name.trim() || "一位不愿具名的人类";
+    var seedStr = name + "|" + state.answers.join("");
+    var h = hashStr(seedStr);
+    var certNo = "人许字〔" + new Date().getFullYear() + "〕第 " + String(h % 900000 + 100000) + " 号";
+    var fileNo = "R-2026-" + pad(h % 99 + 1) + "/" + pad((h>>>8) % 999 + 1);
+
+    $("#decisionVal").textContent = decisionVal;
+    $("#decisionNote").textContent = decisionNote;
+
+    var rk = pct >= 72 ? ["免试复核，无需补考","（本局已无更多可教）"]
+           : pct >= 56 ? ["无需补考","（建议自行复习「在电梯里说话」一节）"]
+           : pct >= 40 ? ["建议补考（自愿）","（补考费用：一顿好的）"]
+           : ["需补考","（补考时间另行通知，通常会忘）"];
+    $("#retakeVal").textContent = rk[0];
+    $("#retakeNote").textContent = rk[1];
+    $("#certNo").textContent = certNo;
+    $("#fileNo").textContent = fileNo;
+    var cpn = document.getElementById("certPaperNo");
+    if(cpn) cpn.textContent = state.paperNo || "—";
+    $("#fName").textContent = name;
+    $("#fLevel").textContent = levelName;
+    $("#fScore").textContent = pct;
+    var rank = Math.max(1, Math.round((100 - pct) / 100 * 137) + 1);
+    $("#fRank").textContent = "第 " + rank + " 名 / 共 137 人";
+    $("#fScope").textContent = lv.scope;
+    $("#fValid").textContent = lv.valid;
+    $("#sealLv").textContent = sealLv;
+    drawQR(h);
+
+    var ul = $("#remarks"); ul.innerHTML = "";
+    buildRemarks(t.f, pct).concat(archiveNote()).slice(0,5).forEach(function(r){
+      var li = document.createElement("li"); li.textContent = r; ul.appendChild(li);
+    });
+
+    var d = new Date();
+    $("#issueDate").innerHTML = "签发日期　" + d.getFullYear() + " 年 " + (d.getMonth()+1) + " 月 " + d.getDate() + " 日<br>"
+      + "复核建议　" + (pct >= 72 ? "三年后" : pct >= 56 ? "一年后" : "尽快");
+    $("#docYear").textContent = d.getFullYear();
+
+    show("result");
+  }
+
+  /* ---------- wiring ---------- */
+  buildDots();
+  $("#startBtn").addEventListener("click", function(){
+    state.name = $("#nameInput").value || "";
+    var cn = document.getElementById("cardName");
+    if(cn) cn.textContent = state.name.trim() || "一位不愿具名的人类";
+    state.paper = drawPaper();
+    state.answers = new Array(PAPER_SIZE).fill(null);
+    state.idx = 0;
+    state.paperNo = "R-" + String(Math.floor(Math.random()*9000) + 1000);
+    var pn = document.getElementById("paperNo");
+    if(pn) pn.textContent = state.paperNo;
+    renderQ();
+    show("exam");
+  });
+  $("#prevBtn").addEventListener("click", function(){ go(state.idx-1); });
+  $("#nextBtn").addEventListener("click", next);
+  $("#againBtn").addEventListener("click", function(){
+    state.answers = new Array(PAPER_SIZE).fill(null);
+    state.idx = 0;
+    show("intro");
+  });
+  document.addEventListener("keydown", function(e){
+    var examOn = document.querySelector('[data-screen="exam"]').classList.contains("on");
+    if(!examOn) return;
+    if(e.key >= "1" && e.key <= "4"){
+      var i = +e.key - 1;
+      if(i < state.paper[state.idx].o.length){ pick(i); e.preventDefault(); }
+    } else if(e.key === "Enter" || e.key === "ArrowRight"){
+      next(); e.preventDefault();
+    } else if(e.key === "ArrowLeft"){
+      go(state.idx-1); e.preventDefault();
+    }
+  });
+  $("#nameInput").addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ e.preventDefault(); $("#startBtn").click(); }
+  });
+})();
+</script>
+</body>
+</html>
